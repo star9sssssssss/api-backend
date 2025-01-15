@@ -9,6 +9,7 @@ import com.example.api.constant.UserConstant;
 import com.example.api.exception.BusinessException;
 import com.example.api.exception.ThrowUtils;
 import com.example.api.model.dto.interfaceinfo.InterfaceInfoAddRequest;
+import com.example.api.model.dto.interfaceinfo.InterfaceInfoInvokeRequest;
 import com.example.api.model.dto.interfaceinfo.InterfaceInfoQueryRequest;
 import com.example.api.model.dto.interfaceinfo.InterfaceInfoUpdateRequest;
 import com.example.api.model.entity.InterfaceInfo;
@@ -18,6 +19,7 @@ import com.example.api.model.vo.InterfaceInfoVO;
 import com.example.api.service.InterfaceInfoService;
 import com.example.api.service.UserService;
 import lombok.extern.slf4j.Slf4j;
+import org.example.apiclientsdk.client.ApiClient;
 import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.*;
 
@@ -178,6 +180,47 @@ public class InterfaceInfoController {
         }
         return ResultUtils.success(interfaceinfoService.getInterfaceInfoVO(interfaceinfo));
     }
+
+    /**
+     * 测试调用
+     *
+     * @param invokeRequest
+     * @param request
+     * @return
+     */
+    @PostMapping("/invoke")
+// 这里给它新封装一个参数InterfaceInfoInvokeRequest
+// 返回结果把对象发出去就好了，因为不确定接口的返回值到底是什么
+    public BaseResponse<Object> invokeInterfaceInfo(@RequestBody InterfaceInfoInvokeRequest invokeRequest,
+                                                    HttpServletRequest request) {
+        // 检查请求对象是否为空或者接口id是否小于等于0
+        if (invokeRequest == null || invokeRequest.getId() <= 0) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        // 获取接口id
+        long id = invokeRequest.getId();
+        // 获取用户请求参数
+        String userRequestParams = invokeRequest.getUserRequestParams();
+        // 判断是否存在
+        InterfaceInfo oldInterfaceInfo = interfaceinfoService.getById(id);
+        if (oldInterfaceInfo == null) {
+            throw new BusinessException(ErrorCode.NOT_FOUND_ERROR);
+        }
+        // 检查接口状态是否为下线状态
+        if (oldInterfaceInfo.getStatus() == InterfaceInfoStatusEnum.OFFLINE.getValue()) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "接口已关闭");
+        }
+        // 调用接口
+        User loginUser = userService.getLoginUser(request);
+        String accessKey = loginUser.getAccessKey();
+        String secretKey = loginUser.getSecretKey();
+        ApiClient apiClient = new ApiClient(accessKey, secretKey);
+        org.example.apiclientsdk.model.User test_user = JSONUtil.toBean(userRequestParams, org.example.apiclientsdk.model.User.class);
+        String userNameByPost = apiClient.getUserNameByPost(test_user);
+        return ResultUtils.success(userNameByPost);
+    }
+
+
 
     /**
      * 分页获取列表（仅管理员）

@@ -1,17 +1,12 @@
 package com.example.api.model.vo;
 
 import cn.hutool.core.date.DateTime;
-import cn.hutool.json.JSONUtil;
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableId;
 import com.example.api.model.entity.InterfaceInfo;
-import com.example.api.model.entity.Post;
 import lombok.Data;
 import org.springframework.beans.BeanUtils;
 
 import java.io.Serializable;
 import java.util.Date;
-import java.util.List;
 
 /**
  * 帖子视图
@@ -52,6 +47,11 @@ public class InterfaceInfoVO implements Serializable {
     private String responseHeader;
 
     /**
+     * 请求参数
+     */
+    private String requestParams;
+
+    /**
      * 接口状态（0-关闭，1-开启）
      */
     private Integer status;
@@ -71,6 +71,10 @@ public class InterfaceInfoVO implements Serializable {
      */
     private Date createTime;
 
+    /**
+     * 更新时间
+     */
+    private Date updateTime;
 
     /**
      * 包装类转对象

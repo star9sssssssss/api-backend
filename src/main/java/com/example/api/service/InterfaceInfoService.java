@@ -3,14 +3,9 @@ package com.example.api.service;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.example.api.model.dto.interfaceinfo.InterfaceInfoQueryRequest;
-import com.example.api.model.dto.post.PostQueryRequest;
 import com.example.api.model.entity.InterfaceInfo;
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.example.api.model.entity.Post;
 import com.example.api.model.vo.InterfaceInfoVO;
-import com.example.api.model.vo.PostVO;
-
-import javax.servlet.http.HttpServletRequest;
 
 /**
 * @author 散落星河
