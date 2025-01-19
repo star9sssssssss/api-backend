@@ -213,7 +213,7 @@ public class InterfaceInfoController {
         User loginUser = userService.getLoginUser(request);
         String accessKey = loginUser.getAccessKey();
         String secretKey = loginUser.getSecretKey();
-        ApiClient apiClient = new ApiClient(accessKey, secretKey);
+        ApiClient apiClient = new ApiClient(accessKey, secretKey, id);
         org.example.apiclientsdk.model.User test_user = JSONUtil.toBean(userRequestParams, org.example.apiclientsdk.model.User.class);
         String userNameByPost = apiClient.getUserNameByPost(test_user);
         return ResultUtils.success(userNameByPost);

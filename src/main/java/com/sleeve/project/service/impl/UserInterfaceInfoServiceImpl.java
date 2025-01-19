@@ -47,7 +47,7 @@ public class UserInterfaceInfoServiceImpl extends ServiceImpl<UserInterfaceInfoM
     }
 
     @Override
-    public boolean invokeCount(long interfaceInfoId, long userId) {
+    public Boolean invokeCount(long interfaceInfoId, long userId) {
         // 判断(其实这里还应该校验存不存在，这里就不用校验了，因为它不存在，也更新不到那条记录)
         if (interfaceInfoId <= 0 || userId <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
