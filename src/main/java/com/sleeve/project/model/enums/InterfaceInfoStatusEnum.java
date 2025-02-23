@@ -1,10 +1,13 @@
 package com.sleeve.project.model.enums;
 
+import lombok.Getter;
+
 /**
  * 接口状态枚举
  *
  
  */
+@Getter
 public enum InterfaceInfoStatusEnum {
 
     OFFLINE("下线", 0),
@@ -20,11 +23,4 @@ public enum InterfaceInfoStatusEnum {
     }
 
 
-    public Integer getValue() {
-        return value;
-    }
-
-    public String getText() {
-        return text;
-    }
 }

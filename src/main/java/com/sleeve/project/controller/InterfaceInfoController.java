@@ -1,8 +1,13 @@
 package com.sleeve.project.controller;
 
 import cn.hutool.core.date.DateTime;
+import cn.hutool.core.lang.TypeReference;
+import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.sleeve.project.annotation.AuthCheck;
 import com.sleeve.project.constant.UserConstant;
 import com.sleeve.project.exception.BusinessException;
@@ -19,12 +24,22 @@ import com.sleeve.project.service.InterfaceInfoService;
 import com.sleeve.project.service.UserService;
 import com.sleeve.project.common.*;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.ObjectUtils;
 import org.example.apiclientsdk.client.ApiClient;
+import org.example.apiclientsdk.common.ApiException;
+import org.example.apiclientsdk.common.BaseRequest;
+import org.example.apiclientsdk.common.CurrencyRequest;
+import org.example.apiclientsdk.model.params.NameParam;
+import org.example.apiclientsdk.model.request.NameRequest;
+import org.example.apiclientsdk.model.response.NameResponse;
+import org.example.apiclientsdk.service.ApiService;
+import org.example.apiclientsdk.service.impl.ApiServiceImpl;
 import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.util.Map;
 
 /**
  * 帖子接口
@@ -42,14 +57,12 @@ public class InterfaceInfoController {
     @Resource
     private UserService userService;
 
-    // region 增删改查
-
     /**
      * 创建
      *
-     * @param interfaceinfoAddRequest
-     * @param request
-     * @return
+     * @param interfaceinfoAddRequest 添加请求
+     * @param request http
+     * @return 接口id
      */
     @PostMapping("/add")
     public BaseResponse<Long> addInterfaceInfo(@RequestBody InterfaceInfoAddRequest interfaceinfoAddRequest, HttpServletRequest request) {
@@ -70,9 +83,9 @@ public class InterfaceInfoController {
     /**
      * 删除
      *
-     * @param deleteRequest
-     * @param request
-     * @return
+     * @param deleteRequest 删除请求
+     * @param request http
+     * @return 是否成功
      */
     @PostMapping("/delete")
     public BaseResponse<Boolean> deleteInterfaceInfo(@RequestBody DeleteRequest deleteRequest, HttpServletRequest request) {
@@ -95,8 +108,8 @@ public class InterfaceInfoController {
     /**
      * 更新（仅管理员）
      *
-     * @param interfaceinfoUpdateRequest
-     * @return
+     * @param interfaceinfoUpdateRequest 更新请求
+     * @return 更新结果
      */
     @PostMapping("/update")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
@@ -117,8 +130,8 @@ public class InterfaceInfoController {
 
     /**
      * 上线接口
-     * @param idRequest id
-     * @return
+     * @param idRequest id 接口id
+     * @return 上线结果
      */
     @PostMapping("/online")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
@@ -141,8 +154,8 @@ public class InterfaceInfoController {
 
     /**
      * 下线接口
-     * @param idRequest id
-     * @return
+     * @param idRequest id 接口id
+     * @return 下线结果
      */
     @PostMapping("/offline")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
@@ -165,8 +178,8 @@ public class InterfaceInfoController {
     /**
      * 根据 id 获取
      *
-     * @param id
-     * @return
+     * @param id id
+     * @return 接口
      */
     @GetMapping("/get/vo")
     public BaseResponse<InterfaceInfoVO> getInterfaceInfoVOById(long id, HttpServletRequest request) {
@@ -183,9 +196,9 @@ public class InterfaceInfoController {
     /**
      * 测试调用
      *
-     * @param invokeRequest
-     * @param request
-     * @return
+     * @param invokeRequest 调用请求
+     * @param request http
+     * @return 调用结果
      */
     @PostMapping("/invoke")
     // 这里给它新封装一个参数InterfaceInfoInvokeRequest
@@ -206,17 +219,29 @@ public class InterfaceInfoController {
             throw new BusinessException(ErrorCode.NOT_FOUND_ERROR);
         }
         // 检查接口状态是否为下线状态
-        if (oldInterfaceInfo.getStatus() == InterfaceInfoStatusEnum.OFFLINE.getValue()) {
+        if (oldInterfaceInfo.getStatus().equals(InterfaceInfoStatusEnum.OFFLINE.getValue())) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "接口已关闭");
         }
         // 调用接口
         User loginUser = userService.getLoginUser(request);
         String accessKey = loginUser.getAccessKey();
         String secretKey = loginUser.getSecretKey();
+        // 创建调用接口的客户端，给定ak，sk
         ApiClient apiClient = new ApiClient(accessKey, secretKey, id);
-        org.example.apiclientsdk.model.User test_user = JSONUtil.toBean(userRequestParams, org.example.apiclientsdk.model.User.class);
-        String userNameByPost = apiClient.getUserNameByPost(test_user);
-        return ResultUtils.success(userNameByPost);
+        ApiServiceImpl apiService = new ApiServiceImpl();
+        apiService.setApiClient(apiClient);
+        // 设置本次请求的方式，url，和参数
+        CurrencyRequest currencyRequest = new CurrencyRequest();
+        currencyRequest.setMethod(oldInterfaceInfo.getMethod());
+        currencyRequest.setPath(oldInterfaceInfo.getUrl());
+        currencyRequest.setRequestParams(userRequestParams);
+        try {
+            // 获得响应结果
+            org.example.apiclientsdk.common.BaseResponse response = apiService.reuqest(apiClient, currencyRequest);
+            return ResultUtils.success(response);
+        } catch (ApiException e) {
+            throw new BusinessException(ErrorCode.SYSTEM_ERROR, e.getMessage());
+        }
     }
 
 
@@ -224,7 +249,7 @@ public class InterfaceInfoController {
     /**
      * 分页获取列表（仅管理员）
      *
-     * @param interfaceinfoQueryRequest
+     * @param interfaceinfoQueryRequest 分页请求
      * @return
      */
     @PostMapping("/list/page")
@@ -240,13 +265,11 @@ public class InterfaceInfoController {
     /**
      * 分页获取列表（封装类）
      *
-     * @param interfaceinfoQueryRequest
-     * @param request
+     * @param interfaceinfoQueryRequest 分页请求
      * @return
      */
     @PostMapping("/list/page/vo")
-    public BaseResponse<Page<InterfaceInfoVO>> listInterfaceInfoVOByPage(@RequestBody InterfaceInfoQueryRequest interfaceinfoQueryRequest,
-            HttpServletRequest request) {
+    public BaseResponse<Page<InterfaceInfoVO>> listInterfaceInfoVOByPage(@RequestBody InterfaceInfoQueryRequest interfaceinfoQueryRequest) {
         long current = interfaceinfoQueryRequest.getCurrent();
         long size = interfaceinfoQueryRequest.getPageSize();
         // 限制爬虫
@@ -259,8 +282,8 @@ public class InterfaceInfoController {
     /**
      * 分页获取当前用户创建的资源列表
      *
-     * @param interfaceinfoQueryRequest
-     * @param request
+     * @param interfaceinfoQueryRequest 分页请求
+     * @param request http
      * @return
      */
     @PostMapping("/my/list/page/vo")
@@ -273,8 +296,6 @@ public class InterfaceInfoController {
         interfaceinfoQueryRequest.setUserId(loginUser.getId());
         long current = interfaceinfoQueryRequest.getCurrent();
         long size = interfaceinfoQueryRequest.getPageSize();
-        // 限制爬虫
-        ThrowUtils.throwIf(size > 20, ErrorCode.PARAMS_ERROR);
         Page<InterfaceInfo> interfaceinfoPage = interfaceinfoService.page(new Page<>(current, size),
                 interfaceinfoService.getQueryWrapper(interfaceinfoQueryRequest));
         return ResultUtils.success(interfaceinfoService.getInterfaceInfoVOPage(interfaceinfoPage));

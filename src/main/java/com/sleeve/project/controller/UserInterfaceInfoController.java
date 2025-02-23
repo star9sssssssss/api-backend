@@ -24,9 +24,7 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
 /**
- * 帖子接口
- *
- 
+ * 维护用户与接口关系(调用次数)
  */
 @RestController
 @RequestMapping("/userInterfaceinfo")
@@ -38,7 +36,6 @@ public class UserInterfaceInfoController {
 
     @Resource
     private UserService userService;
-
 
     /**
      * 创建
@@ -59,7 +56,6 @@ public class UserInterfaceInfoController {
         userInterfaceInfo.setUserId(loginUser.getId());
         boolean save = userInterfaceInfoService.save(userInterfaceInfo);
         ThrowUtils.throwIf(!save, ErrorCode.OPERATION_ERROR);
-        // TODO id 是否更新
         return ResultUtils.success(userInterfaceInfo.getId());
     }
 

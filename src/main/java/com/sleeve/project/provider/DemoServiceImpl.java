@@ -24,7 +24,7 @@ public class DemoServiceImpl implements DemoService{
 
     @Override
     public String sayHello(String name) {
-        System.out.println("正在调用api-backend 的sayHello 参数是 " + name);
+        System.out.println("正在调用api-backend的sayHello 参数是 " + name);
         return "sleeve" + name;
     }
 
@@ -59,6 +59,6 @@ public class DemoServiceImpl implements DemoService{
 
     @Override
     public Boolean doInvokeCount(Long interfaceInfoId, Long userId) {
-        return  userInterfaceInfoService.invokeCount(interfaceInfoId, userId);
+        return userInterfaceInfoService.invokeCount(interfaceInfoId, userId);
     }
 }

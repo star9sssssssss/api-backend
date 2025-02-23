@@ -7,7 +7,6 @@ import java.io.Serializable;
 /**
  * 接口修改与删除请求
  *
- 
  */
 @Data
 public class IDRequest implements Serializable {

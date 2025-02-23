@@ -16,20 +16,25 @@ public interface InterfaceInfoService extends IService<InterfaceInfo> {
 
     /**
      * 获取接口的封装
-     * @param interfaceInfo
-     * @return
+     * @param interfaceInfo 接口信息
+     * @return 封装
      */
     InterfaceInfoVO getInterfaceInfoVO(InterfaceInfo interfaceInfo);
 
 
     /**
      * 获取查询条件
-     * @param interfaceInfoQueryRequest
+     * @param interfaceInfoQueryRequest 请求
      * @return
      */
     QueryWrapper<InterfaceInfo> getQueryWrapper(InterfaceInfoQueryRequest interfaceInfoQueryRequest);
 
 
+    /**
+     * 获取分页结果(封装)
+     * @param interfaceInfoPage 分页原生
+     * @return
+     */
     Page<InterfaceInfoVO> getInterfaceInfoVOPage(Page<InterfaceInfo> interfaceInfoPage);
 
 }

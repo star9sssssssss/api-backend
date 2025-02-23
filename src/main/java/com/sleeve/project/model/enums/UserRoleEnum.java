@@ -3,6 +3,8 @@ package com.sleeve.project.model.enums;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import lombok.Getter;
 import org.apache.commons.lang3.ObjectUtils;
 
 /**
@@ -10,11 +12,12 @@ import org.apache.commons.lang3.ObjectUtils;
  *
  
  */
+@Getter
 public enum UserRoleEnum {
 
     USER("用户", "user"),
     ADMIN("管理员", "admin"),
-    BAN("被封号", "ban");
+    BAN("封号", "ban");
 
     private final String text;
 
@@ -52,11 +55,4 @@ public enum UserRoleEnum {
         return null;
     }
 
-    public String getValue() {
-        return value;
-    }
-
-    public String getText() {
-        return text;
-    }
 }

@@ -17,7 +17,7 @@ public class PageRequest {
     private int current = 1;
 
     /**
-     * 页面大小
+     * 每页的总数
      */
     private int pageSize = 10;
 

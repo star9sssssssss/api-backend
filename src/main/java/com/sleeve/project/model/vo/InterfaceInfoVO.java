@@ -10,8 +10,6 @@ import java.util.Date;
 
 /**
  * 帖子视图
- *
- 
  */
 @Data
 public class InterfaceInfoVO implements Serializable {
@@ -79,8 +77,6 @@ public class InterfaceInfoVO implements Serializable {
     /**
      * 包装类转对象
      *
-     * @param interfaceInfoVO
-     * @return
      */
     public static InterfaceInfo voToObj(InterfaceInfoVO interfaceInfoVO) {
         if (interfaceInfoVO == null) {
@@ -95,8 +91,6 @@ public class InterfaceInfoVO implements Serializable {
     /**
      * 对象转包装类
      *
-     * @param interfaceInfo
-     * @return
      */
     public static InterfaceInfoVO objToVo(InterfaceInfo interfaceInfo) {
         if (interfaceInfo == null) {

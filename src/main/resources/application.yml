@@ -1,7 +1,6 @@
 spring:
   application:
     name: api-backend
-  # 默认 dev 环境
   profiles:
     active: dev
   # 支持 swagger3
@@ -10,25 +9,12 @@ spring:
       matching-strategy: ant_path_matcher
   # session 配置
   session:
-    # todo 取消注释开启分布式 session（须先配置 Redis）
-    # store-type: redis
-    # 30 天过期
     timeout: 2592000
-  # 数据库配置
-  # todo 需替换配置
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3306/api_db
     username: root
     password: 112358
-  # Redis 配置
-  # todo 需替换配置，然后取消注释
-#  redis:
-#    database: 1
-#    host: localhost
-#    port: 6379
-#    timeout: 5000
-#    password: 123456
   # 文件上传
   servlet:
     multipart:
@@ -39,9 +25,9 @@ server:
   port: 8101
   servlet:
     context-path: /api
-    # cookie 30 天过期
     session:
       cookie:
+
         max-age: 2592000
 mybatis-plus:
   configuration:
@@ -66,6 +52,7 @@ dubbo:
     # 配置注册中心为 Nacos，使用的地址是 nacos://localhost:8848
     id: nacos-registry
     address: nacos://localhost:8848
+
 # 接口文档配置
 knife4j:
   enable: true
@@ -76,4 +63,4 @@ knife4j:
       default:
         api-rule: package
         api-rule-resources:
-          - com.example.api.controller
+          - com.sleeve.project.controller

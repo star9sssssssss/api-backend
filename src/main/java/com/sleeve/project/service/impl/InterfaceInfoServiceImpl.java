@@ -14,6 +14,9 @@ import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 /**
 * @author 散落星河
 * @description 针对表【interface_info(接口信息)】的数据库操作Service实现
@@ -65,7 +68,13 @@ public class InterfaceInfoServiceImpl extends ServiceImpl<InterfaceInfoMapper, I
 
     @Override
     public Page<InterfaceInfoVO> getInterfaceInfoVOPage(Page<InterfaceInfo> interfaceInfoPage) {
-        return null;
+        long current = interfaceInfoPage.getCurrent();
+        long size = interfaceInfoPage.getSize();
+        long total = interfaceInfoPage.getTotal();
+        Page<InterfaceInfoVO> infoVOPage = new Page<>(current, size, total);
+        List<InterfaceInfoVO> collect = interfaceInfoPage.getRecords().stream().map(this::getInterfaceInfoVO).collect(Collectors.toList());
+        infoVOPage.setRecords(collect);
+        return infoVOPage;
     }
 }
 
